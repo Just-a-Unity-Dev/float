@@ -36,7 +36,7 @@ async def roll(ctx, *args):
     except d20.TooManyRolls:
         return await ctx.reply("you roll the dice and it spills all over the floor, you rolled too much dice.")
 
-@bot.command(aliases="create")
+@bot.command(aliases=["create"])
 async def create_schema(ctx):
     """Create's a schema for documents to use."""
     if not ctx.message.guild.id in schemas:
@@ -51,7 +51,7 @@ async def create_schema(ctx):
 
     return await ctx.reply("created a new schema.")
 
-@bot.command(aliases="reset")
+@bot.command(aliases=["reset"])
 async def reset_schema(ctx):
     """Create's a schema for documents to use."""
     if not ctx.message.guild.id in schemas:
@@ -60,7 +60,7 @@ async def reset_schema(ctx):
     schema.__delitem__("schema")
     return await ctx.reply("reset the old schema.")
 
-@bot.command(aliases="list")
+@bot.command(aliases=["list"])
 async def list_schema(ctx):
     """Lists a schema that documents are using."""
     if not ctx.message.guild.id in schemas:
