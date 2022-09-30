@@ -36,7 +36,7 @@ async def roll(ctx, *args):
     except d20.TooManyRolls:
         return await ctx.reply("you roll the dice and it spills all over the floor, you rolled too much dice.")
 
-@bot.command()
+@bot.command(aliases="create")
 async def create_schema(ctx):
     """Create's a schema for documents to use."""
     if not ctx.message.guild.id in schemas:
@@ -51,7 +51,7 @@ async def create_schema(ctx):
 
     return await ctx.reply("created a new schema.")
 
-@bot.command()
+@bot.command(aliases="reset")
 async def reset_schema(ctx):
     """Create's a schema for documents to use."""
     if not ctx.message.guild.id in schemas:
@@ -60,7 +60,7 @@ async def reset_schema(ctx):
     schema.__delitem__("schema")
     return await ctx.reply("reset the old schema.")
 
-@bot.command()
+@bot.command(aliases="list")
 async def list_schema(ctx):
     """Lists a schema that documents are using."""
     if not ctx.message.guild.id in schemas:
@@ -73,7 +73,7 @@ async def list_schema(ctx):
 
     return await ctx.reply('\n'.join(schema["schema"].list_schema()))
 
-@bot.command()
+@bot.command(aliases=["addd","addoc","add"])
 async def add_document(ctx):
     """Adds a document to the schema."""
     if not ctx.message.guild.id in schemas:
@@ -87,7 +87,7 @@ async def add_document(ctx):
     schema['schema'].add_document()
     return await ctx.reply('added a new document.')
 
-@bot.command()
+@bot.command(aliases=["rm","remove"])
 async def remove_document(ctx, id):
     """Adds a document to the schema."""
     if not ctx.message.guild.id in schemas:
@@ -105,8 +105,8 @@ async def remove_document(ctx, id):
     schema['schema'].remove_document(item)
     return await ctx.reply('removed.')
 
-@bot.command()
-async def set_field(ctx, id, field, value):
+@bot.command(aliases=["setdf"])
+async def set_document_field_value(ctx, id, field, value):
     """Sets a document's field."""
     if not ctx.message.guild.id in schemas:
         print("No server detected. Creating new server.")
@@ -123,7 +123,7 @@ async def set_field(ctx, id, field, value):
     schema['schema'].set_document_field(item.__getitem__('id'), field, value)
     return await ctx.reply('set field.')
 
-@bot.command()
+@bot.command(aliases=["addf"])
 async def add_field(ctx, field):
     """Adds a field to the schema."""
     if not ctx.message.guild.id in schemas:
