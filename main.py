@@ -1,5 +1,8 @@
+# the discord bot wrapper
+
 from discord.ext import commands
 from dotenv import load_dotenv
+from .classes.schema import Schema
 import discord
 import d20
 import os
@@ -12,71 +15,6 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='.', intents=intents)
 
 schemas = {}
-
-class DuplicateFieldException(Exception): pass
-class ForbiddenFieldException(Exception): pass
-
-class Schema():
-    def __init__(self) -> None:
-        self.fields = {}
-        self.documents = []
-
-    def add_document(self):
-        document_fields = {}
-        if len(self.documents) == 0:
-            document_fields.__setitem__('id', 0)
-        else:
-            document_fields.__setitem__('id', self.documents[-1].__getitem__('id'))
-        
-        for field in self.fields:
-            document_fields.__setitem__(field, self.fields[field])
-        
-        self.documents.append(document_fields)
-    
-    def add_field(self, title, value=None) -> None:
-        if title.lower() == 'id':
-            raise ForbiddenFieldException
-        
-        self.set_field(title, value)
-
-        for doc in self.documents:
-            doc.__setitem__(title, value)
-            print(f'Set {title} to {value}')
-        print('Done')
-
-    def set_field(self, title, value=None) -> None:
-        if title.lower() == 'id':
-            raise ForbiddenFieldException
-        self.fields.__setitem__(title.lower(), value)
-        return self.get_field(title=title)
-    
-    def get_field(self, title):
-        return self.fields.__getitem__(title.lower())
-    
-    def list_schema(self):
-        render_output = []
-        render_output.append('```')
-        render_output.append(f'Schema Fields:')
-        if not self.fields:
-            render_output.append('No field data detected.')
-        else:
-            for field in self.fields:
-                field_data = self.fields[field]
-                render_output.append(f'{field}: {str(field_data)}')
-        render_output.append('')
-
-        render_output.append('Schema Documents:')
-        if not self.documents:
-            render_output.append('No documents detected.')
-        else:
-            for document in self.documents:
-                render_output.append('-----')
-                for field in document:
-                    render_output.append(f'{field}: {document[field]}')
-        render_output.append('```')
-
-        return render_output
-
 
 @bot.event
 async def on_ready():
