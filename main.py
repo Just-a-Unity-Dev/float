@@ -1,6 +1,7 @@
 from discord.ext import commands
 from dotenv import load_dotenv
 import discord
+import d20
 import os
 
 # load the env so the TOKEN is fed into the environment vars
@@ -48,6 +49,17 @@ async def ping(ctx):
     await ctx.send(f'Pong. {round(bot.latency * 1000)}ms.')
 
 @bot.command()
+async def roll(ctx, *args):
+    try:
+        return await ctx.reply(str(d20.roll(''.join(args))))
+    except d20.RollSyntaxError:
+        return await ctx.reply("a syntactic error occured while rolling your dice.")
+    except d20.RollValueError:
+        return await ctx.reply("a bad value was passed to the operator.")
+    except d20.TooManyRolls:
+        return await ctx.reply("you roll the dice and it spills all over the floor, you rolled too much dice.")
+
+@bot.command()
 async def create_schema(ctx):
     """Create's a schema for documents to use."""
     if not ctx.message.guild.id in schemas:
@@ -56,7 +68,7 @@ async def create_schema(ctx):
     
     schema = schemas[ctx.message.guild.id]
     if "schema" in schema:
-        return await ctx.reply("You, or a previous Gamemaster already has a schema loaded. Use .reset_schema to reset the schema.")
+        return await ctx.reply("a schema is already loaded. use .reset_schema to reset the schema.")
 
     schema["schema"] = Schema()
 
@@ -71,7 +83,7 @@ async def list_schema(ctx):
     
     schema = schemas[ctx.message.guild.id]
     if not "schema" in schema:
-        return await ctx.reply("You, or a previous Gamemaster has not set up a schema. Use .create_schema to create a schema.")
+        return await ctx.reply("a schema has not been set up. use .create_schema to create a schema.")
 
     return await ctx.reply('\n'.join(schema["schema"].list_schema()))
 
