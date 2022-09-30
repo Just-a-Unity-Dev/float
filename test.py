@@ -1,4 +1,5 @@
 from classes.schema import Schema
+from random import randint
 import unittest
 
 class SchemaTests(unittest.TestCase):
@@ -43,11 +44,14 @@ class DocumentTests(unittest.TestCase):
         schema.add_field("test_field_3", "default_value3")
         self.assertEqual(schema.documents[0]["test_field_3"], "default_value3")
     
-    def test_document_id_getting(self):
+    def test_document_id_getset(self):
         schema = Schema()
 
         for x in range(10):
             schema.add_document()
+        schema.add_field("test_field_1", "default_value")
+        schema.set_document_field(3, "test_field_1", "not_default_value")
+        self.assertEqual(schema.get_document_field(3, "test_field_1"), "not_default_value")
         
 
 if __name__ == '__main__':

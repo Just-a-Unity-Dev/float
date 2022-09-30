@@ -21,7 +21,7 @@ class Schema():
         document_fields = {}
         
         # check if we're the first document, else take the last document's id and increment
-        if len(self.documents) == 0:
+        if not self.documents:
             document_fields.__setitem__('id', 0)
         else:
             document_fields.__setitem__('id', self.documents[-1].__getitem__('id') + 1)
@@ -72,7 +72,7 @@ class Schema():
         """Get a document by it's ID"""
 
         for document in self.documents:
-            if document.id == id:
+            if int(document.__getitem__('id')) == int(id):
                 return document
         return None
     
@@ -86,11 +86,10 @@ class Schema():
     
     def get_document_field(self, id: int, field: str):
         document = self.get_document_by_id(id)
-
-        if document is None:
-            raise IndexError
-        
-        document.__getitem__(field)
+        return document.__getitem__(field)
+    
+    def remove_document(self, item):
+        self.documents.remove(item)
     
     def list_schema(self):
         """Output an array of strings that you use '\n'.join() with to create a discord formatted Schema."""
@@ -107,7 +106,7 @@ class Schema():
         else:
             for field in self.fields:
                 field_data = self.fields[field]
-                render_output.append(f'{field}: {str(field_data)}')
+                render_output.append(f'{str(field)}: {str(field_data)}')
         render_output.append('')
 
         render_output.append('Schema Documents:')
@@ -117,7 +116,7 @@ class Schema():
             for document in self.documents:
                 render_output.append('-----')
                 for field in document:
-                    render_output.append(f'{field}: {document[field]}')
+                    render_output.append(f'{str(field)}: {str(document[field])}')
         render_output.append('```')
 
         return render_output

@@ -2,7 +2,7 @@
 
 from discord.ext import commands
 from dotenv import load_dotenv
-from .classes.schema import Schema
+from classes.schema import Schema
 import discord
 import d20
 import os
@@ -88,6 +88,42 @@ async def add_document(ctx):
     return await ctx.reply('added a new document.')
 
 @bot.command()
+async def remove_document(ctx, id):
+    """Adds a document to the schema."""
+    if not ctx.message.guild.id in schemas:
+        print("No server detected. Creating new server.")
+        schemas.__setitem__(ctx.message.guild.id, {})
+    
+    schema = schemas[ctx.message.guild.id]
+    if not "schema" in schema:
+        return await ctx.reply("a schema has not been set up. use .`create_schema` to create a schema.")
+
+    id = int(id)
+    item = schema['schema'].get_document_by_id(id)
+    if item is None:
+        return await ctx.reply('that does not exist.')
+    schema['schema'].remove_document(item)
+    return await ctx.reply('removed.')
+
+@bot.command()
+async def set_field(ctx, id, field, value):
+    """Sets a document's field."""
+    if not ctx.message.guild.id in schemas:
+        print("No server detected. Creating new server.")
+        schemas.__setitem__(ctx.message.guild.id, {})
+    
+    schema = schemas[ctx.message.guild.id]
+    if not "schema" in schema:
+        return await ctx.reply("a schema has not been set up. use .`create_schema` to create a schema.")
+
+    item = schema['schema'].get_document_by_id(int(id))
+
+    if field.lower() == "id":
+        return await ctx.reply('don\'t do that.')
+    schema['schema'].set_document_field(item.__getitem__('id'), field, value)
+    return await ctx.reply('set field.')
+
+@bot.command()
 async def add_field(ctx, field):
     """Adds a field to the schema."""
     if not ctx.message.guild.id in schemas:
@@ -98,7 +134,7 @@ async def add_field(ctx, field):
     if not "schema" in schema:
         return await ctx.reply("a schema has not been set up. use .`create_schema` to create a schema.")
 
-    schema['schema'].add_field(field, 0)
+    schema['schema'].add_field(field, None)
     return await ctx.reply('added a new field.')
 
 bot.run(os.getenv('TOKEN'))
