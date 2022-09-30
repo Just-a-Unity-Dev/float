@@ -76,6 +76,22 @@ class Schema():
                 return document
         return None
     
+    def set_document_field(self, id: int, field: str, value):
+        document = self.get_document_by_id(id)
+
+        if document is None:
+            raise IndexError
+        
+        document.__setitem__(field, value)
+    
+    def get_document_field(self, id: int, field: str):
+        document = self.get_document_by_id(id)
+
+        if document is None:
+            raise IndexError
+        
+        document.__getitem__(field)
+    
     def list_schema(self):
         """Output an array of strings that you use '\n'.join() with to create a discord formatted Schema."""
 
