@@ -46,7 +46,7 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     """Gets the latency of the bot."""
-    await ctx.send(f'Pong. {round(bot.latency * 1000)}ms.')
+    await ctx.send(f'pong. {round(bot.latency * 1000)}ms.')
 
 @bot.command()
 async def roll(ctx, *args):
