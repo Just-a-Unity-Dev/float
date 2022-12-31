@@ -111,10 +111,6 @@ cheers!
             async def forward(self, interaction: discord.Interaction, button: discord.ui.Button):
                 self.page = move_page(self.page, 1)
                 await interaction.response.edit_message(embed=assemble_embed(self.page))
-            
-            @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
-            async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.message.delete()
 
         embed = assemble_embed(0)
 
