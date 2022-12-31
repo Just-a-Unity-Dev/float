@@ -73,8 +73,33 @@ with all of that said, let's get some examples
     @app_commands.command(name="roll", description="rolls a dice. use /guide for guide.")
     async def roll(self, interaction: discord.Interaction, string: str):
         """Roll a dice."""
+        class RollView(discord.ui.View):
+            def __init__(self, user_id: int):
+                super().__init__(timeout=180)
+                self.user_id = user_id
+
+            @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="❓")
+            async def view_roll(self, interaction: discord.Interaction, button: discord.ui.Button):
+                await interaction.response.send_message(f"**`{string}`**", ephemeral=True)
+         
+            @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🎲")
+            async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == self.user_id:
+                    view = RollView(interaction.user.id)
+                    await interaction.response.send_message(str(d20.roll(string)) + f"\n*rerolled by {interaction.user.mention}*", view=view, allowed_mentions=[])
+                else:
+                    await interaction.response.send_message(f"this isn't your roll.", ephemeral=True)
+            
+            @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
+            async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == self.user_id:
+                    await interaction.message.delete()
+                else:
+                    await interaction.response.send_message(f"this isn't your roll.", ephemeral=True)
+
         try:
-            return await interaction.response.send_message(str(d20.roll(string)))
+            view = RollView(interaction.user.id)
+            await interaction.response.send_message(str(d20.roll(string)), view=view)
         except d20.RollSyntaxError:
             return await interaction.response.send_message("a syntactic error occured while rolling your dice.")
         except d20.RollValueError:
