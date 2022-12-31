@@ -33,9 +33,9 @@ tree = app_commands.CommandTree(client)
 
 @tree.command(name="info", description="displays some info", guild = discord.Object(id = 1020278844231524372))
 async def info(interaction: discord.Interaction):
-    embed = discord.Embed(title="float - a D&D bot",description="float is a D&D bot for rolling dice, getting modifiers and more; also fully [open source](https://github.com/Just-a-Unity-Dev/float)!",color=discord.Color.blue)
+    embed = discord.Embed(title="float - a D&D bot",description="float is a D&D bot for rolling dice, getting modifiers and more; also fully [open source](https://github.com/Just-a-Unity-Dev/float)!",color=discord.Color.blue())
     embed.add_field(name="version", value=f"running version v{VERSION}")
-    embed.set_footer(f"this instance is running float v{VERSION}")
+    embed.set_footer(text=f"this instance is running float v{VERSION}")
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(name="ping", description="get's the latency of the bot to the discord API.", guild = discord.Object(id = 1020278844231524372))
