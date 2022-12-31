@@ -1,11 +1,12 @@
 # the discord bot wrapper
 
-from http.client import HTTPException
-from classes.client import Client
-from discord import app_commands
+
+from discord.ext.commands import Greedy, Context # or a subclass of yours
+from typing import Literal, Optional
+from discord.ext import commands
+
 from dotenv import load_dotenv
 import discord
-import d20
 import os
 
 VERSION = '1.0dev'
@@ -13,17 +14,58 @@ VERSION = '1.0dev'
 # load the env so the TOKEN is fed into the environment vars
 load_dotenv()
 
-client = Client()
-tree = client.tree
+intents = discord.Intents.default()
+intents.message_content = True
+client = commands.Bot(command_prefix=".", intents=intents)
 
-@tree.command(name="info", description="displays some info", guild = discord.Object(id = 1020278844231524372))
+@client.command()
+@commands.guild_only()
+@commands.is_owner()
+async def sync(
+  ctx: Context, guilds: Greedy[discord.Object], spec: Optional[Literal["~", "*", "^"]] = None) -> None:
+    if not guilds:
+        if spec == "~":
+            synced = await ctx.bot.tree.sync(guild=ctx.guild)
+        elif spec == "*":
+            ctx.bot.tree.copy_global_to(guild=ctx.guild)
+            synced = await ctx.bot.tree.sync(guild=ctx.guild)
+        elif spec == "^":
+            ctx.bot.tree.clear_commands(guild=ctx.guild)
+            await ctx.bot.tree.sync(guild=ctx.guild)
+            synced = []
+        else:
+            synced = await ctx.bot.tree.sync()
+
+        await ctx.send(
+            f"synced {len(synced)} commands {'globally' if spec is None else 'to the current guild'}."
+        )
+        return
+
+    ret = 0
+    for guild in guilds:
+        try:
+            await ctx.bot.tree.sync(guild=guild)
+        except discord.HTTPException:
+            pass
+        else:
+            ret += 1
+
+    await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
+
+@client.event
+async def on_ready():
+    await client.change_presence(status=discord.Status.idle, activity=discord.Game("D&D 5e"))
+    print(f'Bot is now online. Ping is {round(client.latency * 1000)}ms.')
+    await client.load_extension("classes.cogs.roll")
+
+@client.command(name="info", description="displays some info", guild = discord.Object(id = 1020278844231524372))
 async def info(interaction: discord.Interaction):
     embed = discord.Embed(title="float - a D&D bot",description="float is a D&D bot for rolling dice, getting modifiers and more; also fully [open source](https://github.com/Just-a-Unity-Dev/float)!",color=discord.Color.blue())
     embed.add_field(name="version", value=f"running version v{VERSION}")
     embed.set_footer(text=f"this instance is running float v{VERSION}")
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-@tree.command(name="modifier", description="with a score, get the appropriate modifier", guild = discord.Object(id = 1020278844231524372))
+@client.command(name="modifier", description="with a score, get the appropriate modifier", guild = discord.Object(id = 1020278844231524372))
 async def modifier(interaction: discord.Interaction, score: int):
     mod_list = {
         (1): -5,
@@ -60,22 +102,9 @@ async def modifier(interaction: discord.Interaction, score: int):
             await interaction.response.send_message(f"with a score of **{score}**, the modifier is `{mod_list[key]}`.")
             break
 
-@tree.command(name="ping", description="get's the latency of the bot to the discord API.", guild = discord.Object(id = 1020278844231524372))
+@client.command(name="ping", description="get's the latency of the bot to the discord API.", guild = discord.Object(id = 1020278844231524372))
 async def ping(interaction: discord.Interaction):
     """Gets the latency of the bot."""
     await interaction.response.send_message(f'pong. {round(client.latency * 1000)}ms.')
-
-@tree.command(name="roll", description="rolls a dice. use /guide for guide.", guild = discord.Object(id = 1020278844231524372))
-async def roll(interaction: discord.Interaction, string: str):
-    try:
-        return await interaction.response.send_message(str(d20.roll(string)))
-    except d20.RollSyntaxError:
-        return await interaction.response.send_message("a syntactic error occured while rolling your dice.")
-    except d20.RollValueError:
-        return await interaction.response.send_message("a bad value was passed to the operator.")
-    except d20.TooManyRolls:
-        return await interaction.response.send_message("you roll the dice and it spills all over the floor, you rolled too much dice.")
-    except HTTPException:
-        return await interaction.response.send_message("you roll the dice and it spills into the astral plane never to be seen again.")
 
 client.run(os.getenv('TOKEN'))
