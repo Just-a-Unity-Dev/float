@@ -15,7 +15,10 @@ class MetaCog(commands.Cog):
         embed.add_field(name="version", value=f"running version v{self.VERSION}")
         embed.set_footer(text=f"this instance is running float v{self.VERSION}")
 
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        view = discord.ui.View()
+        view.add_item(discord.ui.button(label='Invite me to your server', style=discord.ButtonStyle.link, url="https://discord.com/oauth2/authorize?client_id=945995912159834152&permissions=277025737792&scope=bot%20applications.commands"))
+
+        await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
     
     @app_commands.command(name="ping", description="get's the latency of the bot to the discord API.")
     async def ping(self, interaction: discord.Interaction):
