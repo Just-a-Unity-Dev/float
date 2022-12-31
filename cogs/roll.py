@@ -32,54 +32,54 @@ this works for 2d20, etc etc
 `/roll` also functions as a full calculator, you can `+-/*` and more.
 """,
 
-"""
-**binary ops full list**
-X * Y - multiplication
-X / Y - division
-X // Y - int division
-X % Y - modulo
-X + Y - addition
-X - Y - subtraction
-X == Y - equality
-X >= Y - greater/equal
-X <= Y - less/equal
-X > Y - greater than
-X < Y - less than
-X != Y - inequality
+"""**binary ops full list**
+`X * Y` - multiplication
+`X / Y` - division
+`X // Y` - int division
+`X % Y` - modulo
+`X + Y` - addition
+`X - Y` - subtraction
+`X == Y` - equality
+`X >= Y` - greater/equal
+`X <= Y` - less/equal
+`X > Y` - greater than
+`X < Y` - less than
+`X != Y` - inequality
 """,
-
-"""
-**operators**
+"""**operators**
 let's get you into the world of **operators**
 
 operators are always followed by a selector, and operate on the items in the set that match the selector.
-k - keep - Keeps all matched values.
-p - drop - Drops all matched values.
-rr - reroll - Rerolls all matched values until none match. (Dice only)
-ro - reroll once - Rerolls all matched values once. (Dice only)
-ra - reroll and add - Rerolls up to one matched value once, keeping the original roll. (Dice only)
-e - explode on - Rolls another die for each matched value. (Dice only)
-mi - minimum - Sets the minimum value of each die. (Dice only)
-ma - maximum - Sets the maximum value of each die. (Dice only)""",
-"""
-**selectors**
+`k` - keep - Keeps all matched values.
+`p` - drop - Drops all matched values.
+`rr` - reroll - Rerolls all matched values until none match. (Dice only)
+`ro` - reroll once - Rerolls all matched values once. (Dice only)
+`ra` - reroll and add - Rerolls up to one matched value once, keeping the original roll. (Dice only)
+`e` - explode on - Rolls another die for each matched value. (Dice only)
+`mi` - minimum - Sets the minimum value of each die. (Dice only)
+`ma` - maximum - Sets the maximum value of each die. (Dice only)""",
+"""**selectors**
 now, **selectors**. selectors select stuff. lol.
 
-X - literal - All values in this set that are literally this value.
-hX - highest X - The highest X values in the set.
-lX - lowest X - The lowest X values in the set.
->X - greater than X - All values in this set greater than X.
-<X - less than X - All values in this set less than X.
+`X` - literal - All values in this set that are literally this value.
+`hX` - highest X - The highest X values in the set.
+`lX` - lowest X - The lowest X values in the set.
+`>X` - greater than X - All values in this set greater than X.
+`<X` - less than X - All values in this set less than X.
 """,
 
-"""
-**examples**
+"""**examples**
 
 with all of that said, let's get some examples
 
 `/roll 4d6kh3` - highest 3 of 4 6-sided dice
 `/roll 2d6ro<3` - roll 2d6s, then reroll any 1s or 2s once
-`/roll 8d6mi2` - roll 8d6s, with each die having a minimum roll of 2"""
+`/roll 8d6mi2` - roll 8d6s, with each die having a minimum roll of 2""",
+"""**the end**
+you have reached the end of the guide to rolling.
+i hope you learnt something, and i hope you had fun!
+cheers!
+"""
         ]
 
         def assemble_embed(page):
@@ -98,9 +98,10 @@ with all of that said, let's get some examples
             return current_page
 
         class PageView(discord.ui.View):
-            def __init__(self):
+            def __init__(self, user_id):
                 super().__init__(timeout=180)
                 self.page = 0
+                self.user_id = user_id
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="◀️")
             async def backward(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -112,9 +113,16 @@ with all of that said, let's get some examples
                 self.page = move_page(self.page, 1)
                 await interaction.response.edit_message(embed=assemble_embed(self.page))
             
+            @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
+            async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
+                if interaction.user.id == self.user_id:
+                    await interaction.message.delete()
+                else:
+                    await interaction.response.send_message(f"this isn't your roll.", ephemeral=True)
+
         embed = assemble_embed(0)
 
-        view = PageView()
+        view = PageView(interaction.user.id)
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
     @app_commands.command(name="roll", description="rolls a dice. use /guide for guide.")
