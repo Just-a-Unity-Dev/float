@@ -13,8 +13,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='.', intents=intents)
 
-schemas = {}
-
 @bot.event
 async def on_ready():
     print(f'Bot is now online. Ping is {round(bot.latency * 1000)}ms.')
