@@ -16,7 +16,7 @@ class MetaCog(commands.Cog):
         embed.set_footer(text=f"this instance is running float v{self.VERSION}")
 
         view = discord.ui.View()
-        view.add_item(discord.ui.button(label='Invite me to your server', style=discord.ButtonStyle.link, url="https://discord.com/oauth2/authorize?client_id=945995912159834152&permissions=277025737792&scope=bot%20applications.commands"))
+        view.add_item(discord.ui.Button(label='Invite me to your server', style=discord.ButtonStyle.link, url="https://discord.com/oauth2/authorize?client_id=945995912159834152&permissions=277025737792&scope=bot%20applications.commands"))
 
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
     
