@@ -1,5 +1,6 @@
 # the discord bot wrapper
 
+from http.client import HTTPException
 from discord import app_commands
 from dotenv import load_dotenv
 import discord
@@ -45,5 +46,7 @@ async def roll(interaction: discord.Interaction, string: str):
         return await interaction.response.send_message("a bad value was passed to the operator.")
     except d20.TooManyRolls:
         return await interaction.response.send_message("you roll the dice and it spills all over the floor, you rolled too much dice.")
+    except HTTPException:
+        return await interaction.response.send_message("you roll the dice and it spills into the astral plane never to be seen again.")
 
 client.run(os.getenv('TOKEN'))
