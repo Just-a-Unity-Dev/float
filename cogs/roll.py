@@ -98,10 +98,9 @@ cheers!
             return current_page
 
         class PageView(discord.ui.View):
-            def __init__(self, user_id):
+            def __init__(self):
                 super().__init__(timeout=180)
                 self.page = 0
-                self.user_id = user_id
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="◀️")
             async def backward(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -115,14 +114,11 @@ cheers!
             
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
             async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
-                if interaction.user.id == self.user_id:
-                    await interaction.message.delete()
-                else:
-                    await interaction.response.send_message(f"this isn't your roll.", ephemeral=True)
+                await interaction.message.delete()
 
         embed = assemble_embed(0)
 
-        view = PageView(interaction.user.id)
+        view = PageView()
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
     @app_commands.command(name="roll", description="rolls a dice. use /guide for guide.")
