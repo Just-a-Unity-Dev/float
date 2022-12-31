@@ -1,37 +1,49 @@
 # the discord bot wrapper
 
-from discord.ext import commands
+from discord import app_commands
 from dotenv import load_dotenv
 import discord
 import d20
 import os
 
+VERSION = '1.0dev'
+
 # load the env so the TOKEN is fed into the environment vars
 load_dotenv()
 
-intents = discord.Intents.default()
-intents.message_content = True
-client = commands.Bot(command_prefix='.', intents=intents)
+class Client(discord.Client):
+    synced = False
 
-@client.event
-async def on_ready():
-    await client.change_presence(status=discord.Status.idle, activity=discord.Game("D&D 5e"))
-    print(f'Bot is now online. Ping is {round(client.latency * 1000)}ms.')
+    def __init__(self) -> None:
+        super().__init__(intents=discord.Intents.default())
+        self.synced = False
 
-@client.command()
-async def ping(ctx):
+    async def on_ready(self):
+        await self.wait_until_ready()
+        if not self.synced:
+            await tree.sync(guild = discord.Object(id = 1020278844231524372))
+            self.synced = True
+
+        await client.change_presence(status=discord.Status.idle, activity=discord.Game("D&D 5e"))
+        print(f'Bot is now online. Ping is {round(client.latency * 1000)}ms.')
+
+client = Client()
+tree = app_commands.CommandTree(client)
+
+@tree.command(name="ping", description="get's the latency of the bot to the discord API.", guild = discord.Object(id = 1020278844231524372))
+async def ping(interaction: discord.Interaction):
     """Gets the latency of the bot."""
-    await ctx.send(f'pong. {round(client.latency * 1000)}ms.')
+    await interaction.response.send_message(f'pong. {round(client.latency * 1000)}ms.')
 
-@client.command()
-async def roll(ctx, *args):
+@tree.command(name="roll", description="rolls a dice. use /guide for guide.", guild = discord.Object(id = 1020278844231524372))
+async def roll(interaction: discord.Interaction, string: str):
     try:
-        return await ctx.reply(str(d20.roll(''.join(args))))
+        return await interaction.response.send_message(str(d20.roll(string)))
     except d20.RollSyntaxError:
-        return await ctx.reply("a syntactic error occured while rolling your dice.")
+        return await interaction.response.send_message("a syntactic error occured while rolling your dice.")
     except d20.RollValueError:
-        return await ctx.reply("a bad value was passed to the operator.")
+        return await interaction.response.send_message("a bad value was passed to the operator.")
     except d20.TooManyRolls:
-        return await ctx.reply("you roll the dice and it spills all over the floor, you rolled too much dice.")
+        return await interaction.response.send_message("you roll the dice and it spills all over the floor, you rolled too much dice.")
 
 client.run(os.getenv('TOKEN'))
