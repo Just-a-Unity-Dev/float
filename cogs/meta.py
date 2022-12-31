@@ -6,7 +6,7 @@ import discord
 class MetaCog(commands.Cog):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
-        self.VERSION = "1.0dev"
+        self.VERSION = "1.0"
 
     @app_commands.command(name="info", description="displays some info")
     async def info(self, interaction: discord.Interaction):
