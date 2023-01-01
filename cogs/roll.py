@@ -2,6 +2,7 @@
 from http.client import HTTPException
 from discord import app_commands
 from discord.ext import commands
+from classes.roll import roll
 import discord
 import d20
 
@@ -10,7 +11,7 @@ class RollCog(commands.Cog):
         self.client = client
     
     @app_commands.command(name="guide", description="displays a guidebook on how to roll")
-    async def guide(self, interaction: discord.Interaction):
+    async def guide_command(self, interaction: discord.Interaction):
         """Displays information about the bot"""
         pages = [
 """**welcome**
@@ -20,7 +21,10 @@ however if you want advanced dice maneuverability, read the entire guide!
 
 good luck, traveler!
 """,
+
 """**the basics**
+`float` uses standard dice notation to roll their dice.
+
 let's roll a basic d20
 you can do this via `/roll 1d20`
 breaking `1d20` down:
@@ -30,9 +34,10 @@ breaking `1d20` down:
 this works for 2d20, etc etc
 
 `/roll` also functions as a full calculator, you can `+-/*` and more.
+you can do such as `/roll 1d20*2` or `/roll 8d6+4`
 """,
 
-"""**binary ops full list**
+"""**operator full list**
 `X * Y` - multiplication
 `X / Y` - division
 `X // Y` - int division
@@ -117,9 +122,9 @@ cheers!
         view = PageView()
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
-    @app_commands.command(name="roll", description="rolls a dice. use /guide for guide.")
-    async def roll(self, interaction: discord.Interaction, string: str):
-        """Roll a dice."""
+    @app_commands.command(name="roll", description="rolls a dice with dice notation. use /guide for guide.")
+    async def roll_command(self, interaction: discord.Interaction, string: str):
+        """Roll a dice using regular dice notation."""
         class RollView(discord.ui.View):
             def __init__(self, user_id: int):
                 super().__init__(timeout=180)
@@ -133,9 +138,9 @@ cheers!
             async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
                 if interaction.user.id == self.user_id:
                     view = RollView(interaction.user.id)
-                    await interaction.response.send_message(str(d20.roll(string)) + f"\n*rerolled by {interaction.user.mention}*", view=view, allowed_mentions=[])
+                    await interaction.response.send_message(roll(string) + f"\n*rerolled by {interaction.user.mention}*", view=view, allowed_mentions=[])
                 else:
-                    await interaction.response.send_message(f"this isn't your roll.", ephemeral=True)
+                    await interaction.response.send_message(roll(string), view=view, ephemeral=True)
             
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
             async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -146,7 +151,7 @@ cheers!
 
         try:
             view = RollView(interaction.user.id)
-            await interaction.response.send_message(str(d20.roll(string)), view=view)
+            await interaction.response.send_message(roll(string), view=view)
         except d20.RollSyntaxError:
             return await interaction.response.send_message("a syntactic error occured while rolling your dice.")
         except d20.RollValueError:
