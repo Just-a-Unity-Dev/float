@@ -41,7 +41,7 @@ class DNDCog(commands.Cog):
                 modifier = tuple([key])
 
             if score in modifier: # <number> in (<number>, <number>)
-                await interaction.response.send_message(f"with a score of **{score}**, the modifier is `{mod_list[key]}`.")
+                await interaction.response.send_message(f"with a score of **{score}**, the modifier is `{mod_list[key]}`.", ephemeral=True)
                 break
 
 async def setup(client: commands.Bot) -> None:
