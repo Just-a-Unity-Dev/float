@@ -32,7 +32,7 @@ class DNDCog(commands.Cog):
         if score == 0:
             return await interaction.response.send_message(f"hahahaha. very funny.")
 
-        if score > len(keys) or score < 1:
+        if score > 30 or score < 1:
             return await interaction.response.send_message(f"score **{score}** has to be within the range of 1-30.")
 
         for key in keys:
