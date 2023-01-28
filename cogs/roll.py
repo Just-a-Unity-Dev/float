@@ -10,7 +10,7 @@ class RollCog(commands.Cog, name="Rolling", description="Roll dice, and stomp on
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
     
-    @app_commands.command(name="guide", description="displays a guidebook on how to roll")
+    @app_commands.command(name="guide", brief="guidebook for rolling.", description="displays a guidebook on how to roll.")
     async def guide_command(self, interaction: discord.Interaction):
         """Displays information about the bot"""
         pages = [
@@ -122,7 +122,7 @@ cheers!
         view = PageView()
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
-    @commands.command(name="roll", description="rolls a dice with dice notation. use /guide for guide.")
+    @commands.command(name="roll", brief="nat 20 or nat 1, take it or leave it.", description="rolls a dice with dice notation. use /guide for guide.")
     async def roll_command_text(self, interaction: commands.Context, string: str):
         """Roll a dice using regular dice notation."""
 

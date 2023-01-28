@@ -8,7 +8,7 @@ class MetaCog(commands.Cog, name="Meta", description="Meta stuff, including disp
         self.client = client
         self.VERSION = "1.0"
 
-    @commands.hybrid_command(name="info", description="displays some info")
+    @commands.hybrid_command(name="info", brief="information about the bot.", description="displays some potentially useful information on the bot.")
     async def info(self, ctx: commands.Context):
         """Displays information about the bot"""
         embed = discord.Embed(title="float - a D&D bot",description="float is a D&D bot for rolling dice, getting modifiers and more; also fully [open source](https://github.com/Just-a-Unity-Dev/float)!",color=discord.Color.blue())
@@ -20,7 +20,7 @@ class MetaCog(commands.Cog, name="Meta", description="Meta stuff, including disp
 
         await ctx.reply(embed=embed, ephemeral=True, view=view)
     
-    @commands.hybrid_command(name="ping", description="get's the latency of the bot to the discord API.")
+    @commands.hybrid_command(name="ping", brief="pong.", description="get's the latency of the bot to the discord API.")
     async def ping(self, ctx: commands.Context):
         """Gets the latency of the bot."""
         await ctx.reply(f'pong. {round(self.client.latency * 1000)}ms.')

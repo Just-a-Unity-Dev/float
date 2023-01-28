@@ -3,12 +3,12 @@ from discord import app_commands
 from discord.ext import commands
 import discord
 
-class DNDCog(commands.Cog):
+class DNDCog(commands.Cog, name="D&D 5e", description="Utility commands for 5e."):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
 
-    @app_commands.command(name="modifier", description="with a score, get the appropriate modifier")
-    async def modifier(self, interaction: discord.Interaction, score: int):
+    @commands.hybrid_command(name="modifier", aliases=["mod"], brief="get ability modifier.", description="with a score, get the appropriate modifier.")
+    async def modifier(self, ctx: commands.Context, score: int):
         mod_list = {
             (0,1): -5,
             (2,3): -4,
@@ -30,7 +30,7 @@ class DNDCog(commands.Cog):
         keys = mod_list.keys()
 
         if score > 30 or score < 0:
-            return await interaction.response.send_message(f"score **{score}** has to be within the range of 1-30.")
+            return await ctx.reply(f"score **{score}** has to be within the range of 1-30.")
 
         for key in keys:
             modifier = key
@@ -38,8 +38,8 @@ class DNDCog(commands.Cog):
                 modifier = tuple([key])
 
             if score in modifier: # <number> in (<number>, <number>)
-                await interaction.response.send_message(f"with a score of **{score}**, the modifier is `{mod_list[key]}`.", ephemeral=True)
+                await ctx.reply(f"with a score of **{score}**, the modifier is `{mod_list[key]}`.")
                 break
 
 async def setup(client: commands.Bot) -> None:
-  await client.add_cog(DNDCog(client))
+    await client.add_cog(DNDCog(client))
