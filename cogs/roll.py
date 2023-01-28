@@ -10,8 +10,8 @@ class RollCog(commands.Cog, name="Rolling", description="Roll dice, and stomp on
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
     
-    @app_commands.command(name="guide", brief="guidebook for rolling.", description="displays a guidebook on how to roll.")
-    async def guide_command(self, interaction: discord.Interaction):
+    @commands.hybrid_command(name="guide", brief="guidebook for rolling.", description="displays a guidebook on how to roll.")
+    async def guide_command(self, ctx: commands.Context):
         """Displays information about the bot"""
         pages = [
 """**welcome**
@@ -88,7 +88,7 @@ cheers!
         ]
 
         def assemble_embed(page):
-            return discord.Embed(title=f"rolling - a guide (page {page + 1})",description=pages[page],color=discord.Color.blue())
+            return discord.Embed(title=f"rolling - a guide (page {page + 1})", description=pages[page],color=discord.Color.blue())
 
         def move_page(page, amount):
             current_page = page + amount
@@ -103,24 +103,28 @@ cheers!
             return current_page
 
         class PageView(discord.ui.View):
+            message: discord.Message = None
+
             def __init__(self):
-                super().__init__(timeout=180)
+                super().__init__(timeout=300)
                 self.page = 0
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="◀️")
-            async def backward(self, interaction: discord.Interaction, button: discord.ui.Button):
+            async def backward(self, ctx: commands.Context, button: discord.ui.Button):
                 self.page = move_page(self.page, -1)
-                await interaction.response.edit_message(embed=assemble_embed(self.page))
+                await self.message.edit(embed=assemble_embed(self.page))
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="▶️")
-            async def forward(self, interaction: discord.Interaction, button: discord.ui.Button):
+            async def forward(self, ctx: commands.Context, button: discord.ui.Button):
                 self.page = move_page(self.page, 1)
-                await interaction.response.edit_message(embed=assemble_embed(self.page))
+                await self.message.edit(embed=assemble_embed(self.page))
 
         embed = assemble_embed(0)
 
         view = PageView()
-        await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
+        message = await ctx.reply(embed=embed, view=view)
+
+        view.message = message
 
     @commands.command(name="roll", brief="nat 20 or nat 1, take it or leave it.", description="rolls a dice with dice notation. use /guide for guide.")
     async def roll_command_text(self, interaction: commands.Context, string: str):
