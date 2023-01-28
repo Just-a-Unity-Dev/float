@@ -17,10 +17,10 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = commands.Bot(command_prefix=".", intents=intents)
 
-@client.command()
+@client.command(name="sync", brief="Sync commands.")
 @commands.guild_only()
 @commands.is_owner()
-async def sync(
+async def sync_command(
   ctx: Context, guilds: Greedy[discord.Object], spec: Optional[Literal["~", "*", "^"]] = None) -> None:
     if not guilds:
         if spec == "~":
