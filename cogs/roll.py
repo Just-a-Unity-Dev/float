@@ -136,11 +136,7 @@ cheers!
          
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🎲")
             async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
-                if interaction.user.id == self.user_id:
-                    view = RollView(interaction.user.id)
-                    await interaction.response.send_message(roll(string) + f"\n*rerolled by {interaction.user.mention}*", view=view, allowed_mentions=[])
-                else:
-                    await interaction.response.send_message(roll(string), view=view, ephemeral=True)
+                await interaction.response.send_message(roll(string), view=view, ephemeral=True)
             
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
             async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
