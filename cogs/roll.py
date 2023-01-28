@@ -6,7 +6,7 @@ from classes.roll import roll
 import discord
 import d20
 
-class RollCog(commands.Cog):
+class RollCog(commands.Cog, name="Rolling", description="Roll dice, and stomp on your players (or DM)!"):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
     
