@@ -10,7 +10,7 @@ class DNDCog(commands.Cog):
     @app_commands.command(name="modifier", description="with a score, get the appropriate modifier")
     async def modifier(self, interaction: discord.Interaction, score: int):
         mod_list = {
-            (1): -5,
+            (0,1): -5,
             (2,3): -4,
             (4,5): -3,
             (6,7): -2,
@@ -29,10 +29,7 @@ class DNDCog(commands.Cog):
         }
         keys = mod_list.keys()
 
-        if score == 0:
-            return await interaction.response.send_message(f"hahahaha. very funny.")
-
-        if score > 30 or score < 1:
+        if score > 30 or score < 0:
             return await interaction.response.send_message(f"score **{score}** has to be within the range of 1-30.")
 
         for key in keys:
