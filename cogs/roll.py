@@ -122,8 +122,23 @@ cheers!
         view = PageView()
         await interaction.response.send_message(embed=embed, ephemeral=True, view=view)
 
+    @commands.command(name="roll", description="rolls a dice with dice notation. use /guide for guide.")
+    async def roll_command_text(self, interaction: commands.Context, string: str):
+        """Roll a dice using regular dice notation."""
+
+        try:
+            await interaction.reply(roll(string))
+        except d20.RollSyntaxError:
+            return await interaction.reply("a syntactic error occured while rolling your dice.")
+        except d20.RollValueError:
+            return await interaction.reply("a bad value was passed to the operator.")
+        except d20.TooManyRolls:
+            return await interaction.reply("you roll the dice and it spills all over the floor, you rolled too much dice.")
+        except HTTPException:
+            return await interaction.reply("you roll the dice and it spills into the astral plane never to be seen again.")
+
     @app_commands.command(name="roll", description="rolls a dice with dice notation. use /guide for guide.")
-    async def roll_command(self, interaction: discord.Interaction, string: str):
+    async def roll_command_slash(self, interaction: discord.Interaction, string: str):
         """Roll a dice using regular dice notation."""
         class RollView(discord.ui.View):
             def __init__(self, user_id: int):
@@ -140,10 +155,10 @@ cheers!
             
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
             async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
-                if interaction.user.id == self.user_id:
+                if interaction.user.id == self.user_id or interaction.user.guild_permissions.manage_messages == True:
                     await interaction.message.delete()
                 else:
-                    await interaction.response.send_message(f"this isn't your roll.", ephemeral=True)
+                    await interaction.response.send_message(f"this isn't your roll, or you don't have access to manage messages.", ephemeral=True)
 
         try:
             view = RollView(interaction.user.id)
