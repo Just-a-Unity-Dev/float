@@ -9,13 +9,49 @@ from dotenv import load_dotenv
 import discord
 import os
 
-
 # load the env so the TOKEN is fed into the environment vars
 load_dotenv()
 
+class HelpCommand(commands.HelpCommand):
+    def __init__(self) -> None:
+        super().__init__()
+
+    async def send_bot_help(self, mapping) -> None:
+        message = ["```toml"]
+
+        for cog in mapping:
+            qualified_name = "None"
+            if cog != None: qualified_name = cog.qualified_name
+
+            message.append(f"[{qualified_name}]")
+
+            for command in mapping[cog]:
+                temporary_message = f"{command.name} = \"{command.brief}\""
+                temporary_message += " " + "# " + command.description
+
+                if len(command.aliases) > 0:
+                    temporary_message += " " + f"also known as: {','.join(command.aliases)}"
+
+                message.append(temporary_message)
+            
+            message.append("\n")
+
+        message.append("```")
+
+        await self.get_destination().send("\n".join(message))
+
+    async def send_cog_help(self, cog) -> None:
+        await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in cog.get_commands()]}')
+
+    async def send_command_help(self, command) -> None:
+        await self.get_destination().send(command.name)
+
+    async def send_group_help(self, group) -> None:
+        await self.get_destination().send(f'{group.name}: {[command.name for index, command in enumerate(group.commands)]}')
+
 intents = discord.Intents.default()
 intents.message_content = True
-client = commands.Bot(command_prefix=".", intents=intents)
+client = commands.Bot(command_prefix=".", intents=intents, help_command=HelpCommand())
 
 @client.command(name="sync", brief="Sync commands.")
 @commands.guild_only()
