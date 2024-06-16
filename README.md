@@ -1,3 +1,5 @@
+[!float, the dice, laying on a desk with battlemaps and folder](./.github/banner.png)
+
 # float
 
 a simple dice roller bot made for me and my friends. hosted under MIT license.
