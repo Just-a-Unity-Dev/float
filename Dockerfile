@@ -1,8 +1,9 @@
 FROM python:3.11
 
-WORKDIR /opt/float/
-
+WORKDIR /app
 COPY requirements.txt ./
+
+ENV TOKEN=secret
 
 RUN pip install --no-cache-dir --upgrade pip \
   && pip install --no-cache-dir -r requirements.txt
