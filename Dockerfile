@@ -1,5 +1,4 @@
 FROM python:3.11
-FROM igloo/float_bot:latest
 
 WORKDIR /app
 COPY REQUIREMENTS.txt ./
