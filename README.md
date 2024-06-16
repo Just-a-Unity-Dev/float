@@ -1,4 +1,4 @@
-[!float, the dice, laying on a desk with battlemaps and folder](./.github/banner.png)
+![float, the dice, laying on a desk with battlemaps and folder](./.github/banner.png)
 
 # float
 
