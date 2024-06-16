@@ -6,7 +6,7 @@ COPY REQUIREMENTS.txt ./
 ENV TOKEN=secret
 
 RUN pip install --no-cache-dir --upgrade pip \
-  && pip install --no-cache-dir -r REQUIREMENT.txt
+  && pip install --no-cache-dir -r REQUIREMENTS.txt
 
 COPY . .
 
