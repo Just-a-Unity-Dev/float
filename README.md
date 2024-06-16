@@ -1,11 +1,7 @@
 # float
 
-a simple D&D bot for my D&D sessions. code is hasty and most (if not all) data is stored in memory.
+a simple dice roller bot made for me and my friends. hosted under MIT license.
 
-make a role called "gm" to be allowed to character modification & schemas.
+mostly on maintenance because there's not much stuff you can put in a diceroller bot.
 
-the bot is serverwide, not channel-specific. if you modify a schema it will clear it for the whole server.
-
-## license
-
-MIT
+[support me on ko-fi](https://ko-fi.com/raincaldwell)
