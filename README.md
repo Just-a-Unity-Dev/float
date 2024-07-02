@@ -10,23 +10,22 @@ mostly on maintenance because there's not much stuff you can put in a diceroller
 
 ## how do i host this
 
-float has only been tested on docker. podman may be broken, refer to [this issue for more](https://github.com/Just-a-Unity-Dev/float/issues/1).
+you are able to use a systemd service such as
+```
+[Unit]
+Description=a dicerolling discord bot
+After=network.target
 
-### docker
+[Service]
+ExecStart=/PATH/TO/float/venv/bin/python3 main.py
+WorkingDirectory=/PATH/TO/float/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=BOT_RUNNER_USER_REPLACE_ME
 
-1. install `docker`, `docker-compose` and git by extension
-2. clone this repo with git
-3. checkout the version that suits your need
-4. `docker-compose build`
-5. `docker run -e TOKEN=<DISCORD_TOKEN> -d float_bot`
-6. `history -c` to clear your history so that the token is hidden
+[Install]
+WantedBy=multi-user.target
+```
 
-### podman
-
-1. install `podman` and relevant
-2. clone this repo with git
-3. checkout the version that suits your need
-4. `podman build .`
-5. get image id in `podman images`
-6. `podman run -e TOKEN=<DISCORD_TOKEN> -d <IMAGE_ID>`
-7. `history -c` to clear your history so that the token is hidden
+after setting up git and venv.
