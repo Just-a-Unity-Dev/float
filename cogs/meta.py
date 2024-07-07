@@ -10,7 +10,7 @@ class MetaCog(
 ):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
-        self.VERSION = "1.0"
+        self.VERSION = "1.2.0"
 
     @commands.hybrid_command(
             name="info",
