@@ -153,6 +153,7 @@ cheers!
             description="rolls a dice with dice notation. use /guide for guide."
     )
     @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def roll_command_slash(self, interaction: discord.Interaction, string: str):
         """Roll a dice using regular dice notation."""
         class RollView(discord.ui.View):
