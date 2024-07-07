@@ -2,6 +2,8 @@
 from discord.ext.commands import Greedy, Context  # or a subclass of yours
 from typing import Literal, Optional
 from discord.ext import commands
+from asyncio import sleep
+import random
 
 from dotenv import load_dotenv
 import discord
@@ -93,10 +95,36 @@ async def sync_command(
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
 
+def pick_status():
+    statuses = [  # we don't have a config.yml for now. so...
+        "hello everyone",
+        "rolling dice is fun",
+        "death grips is a cool band",
+        ":3",
+        ":o",
+        ":D",
+        "congratulations to whoever rolled that nat 20!",
+        "traveller is a sick game.",
+        "anyone play pf2e?",
+        "kinda eh",
+        "in a digital cell...",
+        ":("
+    ]
+    return random.choice(statuses)
+
+
+async def status_task():
+    while True:
+        await client.change_presence(
+            status=discord.Status.idle,
+            activity=discord.CustomActivity(name=pick_status()))
+        await sleep(random.randint(60, 600)*60)
+
+
 @client.event
 async def on_ready():
     # change presence
-    await client.change_presence(status=discord.Status.idle, activity=discord.Game("D&D 5e"))
+    client.loop.create_task(status_task())
 
     # load extensions
     for file in os.listdir("./cogs"):
