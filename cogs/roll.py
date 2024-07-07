@@ -1,9 +1,8 @@
 from http.client import HTTPException
 from discord import app_commands
 from discord.ext import commands
-from classes.roll import roll
+from classes.roll import roll_with_text
 import discord
-import d20
 
 
 class RollCog(
@@ -137,18 +136,6 @@ cheers!
 
         view.message = message
 
-    def get_roll_text(string: str):
-        returnee = None
-        try:
-            returnee = roll(string)
-        except d20.RollSyntaxError:
-            returnee = "a syntactic error occured while rolling your dice."
-        except d20.RollValueError:
-            returnee = "a bad value was passed to the operator."
-        except d20.TooManyRolls:
-            returnee = "you rolled so much dice it spills all over the floor."
-        return returnee
-
     @commands.command(
             name="roll",
             brief="nat 20 or nat 1, take it or leave it.",
@@ -157,9 +144,9 @@ cheers!
     async def roll_command_text(self, interaction: commands.Context, string: str):
         """Roll a dice using regular dice notation."""
         try:
-            await interaction.reply(self.get_roll_text(string))
-        except HTTPException:
-            interaction.reply("you roll the dice and it spills into the astral plane.")
+            await interaction.reply(roll_with_text(string))
+        except HTTPException as ex:
+            print(ex)
 
     @app_commands.command(
             name="roll",
@@ -179,7 +166,9 @@ cheers!
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🎲")
             async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.response.send_message(roll(string), view=view, ephemeral=True)
+                await interaction.response.send_message(
+                    roll_with_text(string),
+                    view=view, ephemeral=True)
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
             async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -193,7 +182,7 @@ cheers!
 
         try:
             view = RollView(interaction.user.id)
-            await interaction.reply(self.get_roll_text(string), view=view)
+            await interaction.reply(roll_with_text(string), view=view)
         except HTTPException:
             interaction.reply("you roll the dice and it spills into the astral plane.")
 
