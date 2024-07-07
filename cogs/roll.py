@@ -11,6 +11,7 @@ class RollCog(commands.Cog, name="Rolling", description="Roll dice, and stomp on
         self.client = client
     
     @commands.hybrid_command(name="guide", brief="guidebook for rolling.", description="displays a guidebook on how to roll.")
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def guide_command(self, ctx: commands.Context):
         """Displays information about the bot"""
         pages = [
@@ -142,6 +143,7 @@ cheers!
             return await interaction.reply("you roll the dice and it spills into the astral plane never to be seen again.")
 
     @app_commands.command(name="roll", description="rolls a dice with dice notation. use /guide for guide.")
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def roll_command_slash(self, interaction: discord.Interaction, string: str):
         """Roll a dice using regular dice notation."""
         class RollView(discord.ui.View):
