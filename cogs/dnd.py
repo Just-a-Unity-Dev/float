@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord import app_commands
 
 
 class DNDCog(
@@ -15,6 +16,7 @@ class DNDCog(
             brief="get ability modifier.",
             description="with a score, get the appropriate modifier."
     )
+    @app_commands.allowed_installs(guilds=True, users=True)
     async def modifier(self, ctx: commands.Context, score: int):
         mod_list = {
             (0, 1): -5,
