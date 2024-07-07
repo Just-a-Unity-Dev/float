@@ -99,6 +99,12 @@ async def on_ready():
         if file.endswith(".py"):
             await client.load_extension(f"cogs.{file[:-3]}")
     
+    try:
+        synced = await client.tree.sync()
+        print(f"Synced {len(synced)} commands.")
+    except Exception as e:
+        print(e)
+    
     print(f'Bot is now online. Ping is {round(client.latency * 1000)}ms.')
 
 if __name__ == "__main__":
