@@ -1,29 +1,35 @@
-
 from http.client import HTTPException
 from discord import app_commands
 from discord.ext import commands
-from classes.roll import roll
+from classes.roll import roll_with_text
 import discord
-import d20
 
-class RollCog(commands.Cog, name="Rolling", description="Roll dice, and stomp on your players (or DM)!"):
+
+class RollCog(
+    commands.Cog, name="Rolling",
+    description="Roll dice, and stomp on your players (or GM)!"
+):
     def __init__(self, client: commands.Bot) -> None:
         self.client = client
-    
-    @commands.hybrid_command(name="guide", brief="guidebook for rolling.", description="displays a guidebook on how to roll.")
+
+    @commands.hybrid_command(
+            name="guide",
+            brief="guidebook for rolling.",
+            description="displays a guidebook on how to roll."
+        )
     @app_commands.allowed_installs(guilds=True, users=True)
     async def guide_command(self, ctx: commands.Context):
         """Displays information about the bot"""
         pages = [
-"""**welcome**
+                """**welcome**
 welcome new traveler to the world of **rolling**, there's much to learn!
 if you just want to roll dice, learn **the basics** which is the second page
 however if you want advanced dice maneuverability, read the entire guide!
 
-good luck, traveler!
+good luck, traveller!
 """,
 
-"""**the basics**
+                """**the basics**
 `float` uses standard dice notation to roll their dice.
 
 let's roll a basic d20
@@ -38,7 +44,7 @@ this works for 2d20, etc etc
 you can do such as `/roll 1d20*2` or `/roll 8d6+4`
 """,
 
-"""**operator full list**
+                """**operator full list**
 `X * Y` - multiplication
 `X / Y` - division
 `X // Y` - int division
@@ -52,10 +58,11 @@ you can do such as `/roll 1d20*2` or `/roll 8d6+4`
 `X < Y` - less than
 `X != Y` - inequality
 """,
-"""**operators**
+
+                """**operators**
 let's get you into the world of **operators**
 
-operators are always followed by a selector, and operate on the items in the set that match the selector.
+operators are followed by a selector, and operate on the items in the set that match the selector.
 `k` - keep - Keeps all matched values.
 `p` - drop - Drops all matched values.
 `rr` - reroll - Rerolls all matched values until none match. (Dice only)
@@ -64,7 +71,7 @@ operators are always followed by a selector, and operate on the items in the set
 `e` - explode on - Rolls another die for each matched value. (Dice only)
 `mi` - minimum - Sets the minimum value of each die. (Dice only)
 `ma` - maximum - Sets the maximum value of each die. (Dice only)""",
-"""**selectors**
+                """**selectors**
 now, **selectors**. selectors select stuff. lol.
 
 `X` - literal - All values in this set that are literally this value.
@@ -74,14 +81,14 @@ now, **selectors**. selectors select stuff. lol.
 `<X` - less than X - All values in this set less than X.
 """,
 
-"""**examples**
+                """**examples**
 
 with all of that said, let's get some examples
 
 `/roll 4d6kh3` - highest 3 of 4 6-sided dice
 `/roll 2d6ro<3` - roll 2d6s, then reroll any 1s or 2s once
 `/roll 8d6mi2` - roll 8d6s, with each die having a minimum roll of 2""",
-"""**the end**
+                """**the end**
 you have reached the end of the guide to rolling.
 i hope you learnt something, and i hope you had fun!
 cheers!
@@ -89,18 +96,20 @@ cheers!
         ]
 
         def assemble_embed(page):
-            return discord.Embed(title=f"rolling - a guide (page {page + 1})", description=pages[page],color=discord.Color.blue())
+            return discord.Embed(
+                title=f"rolling - a guide (page {page + 1})",
+                description=pages[page],
+                color=discord.Color.blue()
+            )
 
         def move_page(page, amount):
             current_page = page + amount
             max_page = len(pages) - 1
             min_page = 0
-            
             if current_page > max_page:
                 current_page = min_page
             if current_page < 0:
                 current_page = max_page
-            
             return current_page
 
         class PageView(discord.ui.View):
@@ -127,22 +136,22 @@ cheers!
 
         view.message = message
 
-    @commands.command(name="roll", brief="nat 20 or nat 1, take it or leave it.", description="rolls a dice with dice notation. use /guide for guide.")
+    @commands.command(
+            name="roll",
+            brief="nat 20 or nat 1, take it or leave it.",
+            description="rolls a dice with dice notation. use /guide for guide."
+            )
     async def roll_command_text(self, interaction: commands.Context, string: str):
         """Roll a dice using regular dice notation."""
-
         try:
-            await interaction.reply(roll(string))
-        except d20.RollSyntaxError:
-            return await interaction.reply("a syntactic error occured while rolling your dice.")
-        except d20.RollValueError:
-            return await interaction.reply("a bad value was passed to the operator.")
-        except d20.TooManyRolls:
-            return await interaction.reply("you roll the dice and it spills all over the floor, you rolled too much dice.")
-        except HTTPException:
-            return await interaction.reply("you roll the dice and it spills into the astral plane never to be seen again.")
+            await interaction.reply(roll_with_text(string))
+        except HTTPException as ex:
+            print(ex)
 
-    @app_commands.command(name="roll", description="rolls a dice with dice notation. use /guide for guide.")
+    @app_commands.command(
+            name="roll",
+            description="rolls a dice with dice notation. use /guide for guide."
+    )
     @app_commands.allowed_installs(guilds=True, users=True)
     async def roll_command_slash(self, interaction: discord.Interaction, string: str):
         """Roll a dice using regular dice notation."""
@@ -154,29 +163,29 @@ cheers!
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="❓")
             async def view_roll(self, interaction: discord.Interaction, button: discord.ui.Button):
                 await interaction.response.send_message(f"**`{string}`**", ephemeral=True)
-         
+
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🎲")
             async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.response.send_message(roll(string), view=view, ephemeral=True)
-            
+                await interaction.response.send_message(
+                    roll_with_text(string),
+                    view=view, ephemeral=True)
+
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
             async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
-                if interaction.user.id == self.user_id or interaction.user.guild_permissions.manage_messages == True:
+                if (interaction.user.id == self.user_id or
+                        interaction.user.guild_permissions.manage_messages):
                     await interaction.message.delete()
                 else:
-                    await interaction.response.send_message(f"this isn't your roll, or you don't have access to manage messages.", ephemeral=True)
+                    await interaction.response.send_message(
+                        "this isn't your roll, or you don't have access to manage messages.",
+                        ephemeral=True)
 
         try:
             view = RollView(interaction.user.id)
-            await interaction.response.send_message(roll(string), view=view)
-        except d20.RollSyntaxError:
-            return await interaction.response.send_message("a syntactic error occured while rolling your dice.")
-        except d20.RollValueError:
-            return await interaction.response.send_message("a bad value was passed to the operator.")
-        except d20.TooManyRolls:
-            return await interaction.response.send_message("you roll the dice and it spills all over the floor, you rolled too much dice.")
+            await interaction.reply(roll_with_text(string), view=view)
         except HTTPException:
-            return await interaction.response.send_message("you roll the dice and it spills into the astral plane never to be seen again.")
+            interaction.reply("you roll the dice and it spills into the astral plane.")
+
 
 async def setup(client: commands.Bot) -> None:
-  await client.add_cog(RollCog(client))
+    await client.add_cog(RollCog(client))

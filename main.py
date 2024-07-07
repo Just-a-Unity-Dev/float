@@ -1,7 +1,5 @@
 # the discord bot wrapper
-
-
-from discord.ext.commands import Greedy, Context # or a subclass of yours
+from discord.ext.commands import Greedy, Context  # or a subclass of yours
 from typing import Literal, Optional
 from discord.ext import commands
 
@@ -12,6 +10,7 @@ import os
 # load the env so the TOKEN is fed into the environment vars
 load_dotenv()
 
+
 class HelpCommand(commands.HelpCommand):
     def __init__(self) -> None:
         super().__init__()
@@ -21,7 +20,8 @@ class HelpCommand(commands.HelpCommand):
 
         for cog in mapping:
             qualified_name = "None"
-            if cog != None: qualified_name = cog.qualified_name
+            if cog is not None:
+                qualified_name = cog.qualified_name
 
             message.append(f"[{qualified_name}]")
 
@@ -33,31 +33,34 @@ class HelpCommand(commands.HelpCommand):
                     temporary_message += " " + f"also known as: {','.join(command.aliases)}"
 
                 message.append(temporary_message)
-            
             message.append("\n")
-
         message.append("```")
-
         await self.get_destination().send("\n".join(message))
 
     async def send_cog_help(self, cog) -> None:
-        await self.get_destination().send(f'{cog.qualified_name}: {[command.name for command in cog.get_commands()]}')
+        await self.get_destination().send(
+            f'{cog.qualified_name}: {[command.name for command in cog.get_commands()]}')
 
     async def send_command_help(self, command) -> None:
         await self.get_destination().send(command.name)
 
     async def send_group_help(self, group) -> None:
-        await self.get_destination().send(f'{group.name}: {[command.name for index, command in enumerate(group.commands)]}')
+        await self.get_destination().send(
+            f'{group.name}: {[command.name for index, command in enumerate(group.commands)]}')
+
 
 intents = discord.Intents.default()
 intents.message_content = True
 client = commands.Bot(command_prefix=".", intents=intents, help_command=HelpCommand())
 
+
 @client.command(name="sync", brief="Sync commands.")
 @commands.guild_only()
 @commands.is_owner()
 async def sync_command(
-  ctx: Context, guilds: Greedy[discord.Object], spec: Optional[Literal["~", "*", "^"]] = None) -> None:
+  ctx: Context,
+  guilds: Greedy[discord.Object],
+  spec: Optional[Literal["~", "*", "^"]] = None) -> None:
     if not guilds:
         if spec == "~":
             synced = await ctx.bot.tree.sync(guild=ctx.guild)
@@ -74,8 +77,8 @@ async def sync_command(
             synced = await ctx.bot.tree.sync()
 
         await ctx.send(
-            f"synced {len(synced)} commands {'globally' if spec is None else 'to the current guild'}."
-        )
+            f"""synced {len(synced)} commands
+                {'globally' if spec is None else 'to the current guild'}.""")
         return
 
     ret = 0
@@ -89,22 +92,23 @@ async def sync_command(
 
     await ctx.send(f"Synced the tree to {ret}/{len(guilds)}.")
 
+
 @client.event
 async def on_ready():
     # change presence
     await client.change_presence(status=discord.Status.idle, activity=discord.Game("D&D 5e"))
-    
+
     # load extensions
     for file in os.listdir("./cogs"):
         if file.endswith(".py"):
             await client.load_extension(f"cogs.{file[:-3]}")
-    
+
     try:
         synced = await client.tree.sync()
         print(f"Synced {len(synced)} commands.")
     except Exception as e:
         print(e)
-    
+
     print(f'Bot is now online. Ping is {round(client.latency * 1000)}ms.')
 
 if __name__ == "__main__":
