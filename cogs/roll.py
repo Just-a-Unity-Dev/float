@@ -185,7 +185,7 @@ cheers!
             view = RollView(interaction.user.id)
             await interaction.response.send_message(roll_with_text(string), view=view)
         except HTTPException:
-            interaction.response.send_message("you roll the dice and it spills into the astral plane.")
+            interaction.response.send_message("you roll the dice and it spills into nowhere land.")
 
 
 async def setup(client: commands.Bot) -> None:
