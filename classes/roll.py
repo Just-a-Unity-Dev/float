@@ -7,7 +7,7 @@ def roll_with_text(string: str) -> str:
 
     try:
         for roll in roll_string:
-            roll_result = d20.roll(roll)
+            roll_result = d20.roll(roll.strip())
             message = str(roll_result)
             if roll_result.crit != d20.CritType.NONE:
                 message = f"**{message}**"
