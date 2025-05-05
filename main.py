@@ -7,6 +7,7 @@ import random
 
 from dotenv import load_dotenv
 import discord
+import json
 import os
 
 # load the env so the TOKEN is fed into the environment vars
@@ -53,11 +54,14 @@ class HelpCommand(commands.HelpCommand):
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = commands.Bot(command_prefix=".", intents=intents, help_command=HelpCommand())
+client = commands.Bot(
+    command_prefix=os.getenv("PREFIX"),
+    intents=intents,
+    help_command=HelpCommand()
+)
 
 
 @client.command(name="sync", brief="Sync commands.")
-@commands.guild_only()
 @commands.is_owner()
 async def sync_command(
   ctx: Context,
@@ -65,22 +69,27 @@ async def sync_command(
   spec: Optional[Literal["~", "*", "^"]] = None) -> None:
     if not guilds:
         if spec == "~":
+            print("syncing tree")
             synced = await ctx.bot.tree.sync(guild=ctx.guild)
         elif spec == "*":
+            print("copying global to guild")
             ctx.bot.tree.copy_global_to(guild=ctx.guild)
             synced = await ctx.bot.tree.sync(guild=ctx.guild)
         elif spec == "^":
+            print("clearing and resyncing")
             ctx.bot.tree.clear_commands(guild=ctx.guild)
             await ctx.bot.tree.sync(guild=ctx.guild)
             synced = []
         elif spec == "%":
+            print("clearing")
             ctx.bot.tree.clear_commands()
         else:
             synced = await ctx.bot.tree.sync()
 
         await ctx.send(
-            f"""synced {len(synced)} commands
-                {'globally' if spec is None else 'to the current guild'}.""")
+            f"synced {len(synced)} commands "
+            f"{'globally' if spec is None else 'to the current guild'}."
+        )
         return
 
     ret = 0
@@ -96,21 +105,12 @@ async def sync_command(
 
 
 def pick_status():
-    statuses = [  # we don't have a config.yml for now. so...
-        "hello everyone",
-        "rolling dice is fun",
-        "death grips is a cool band",
-        ":3",
-        ":o",
-        ":D",
-        "congratulations to whoever rolled that nat 20!",
-        "traveller is a sick game.",
-        "anyone play pf2e?",
-        "kinda eh",
-        "in a digital cell...",
-        ":("
-    ]
-    return random.choice(statuses)
+    try:
+        statuses = json.load(open("statuses.json", "r"))
+        return random.choice(statuses)
+    except Exception as e:
+        print(e)
+        return "err!!!"
 
 
 async def status_task():
