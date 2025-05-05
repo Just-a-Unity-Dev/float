@@ -57,7 +57,6 @@ client = commands.Bot(command_prefix=".", intents=intents, help_command=HelpComm
 
 
 @client.command(name="sync", brief="Sync commands.")
-@commands.guild_only()
 @commands.is_owner()
 async def sync_command(
   ctx: Context,
@@ -65,22 +64,27 @@ async def sync_command(
   spec: Optional[Literal["~", "*", "^"]] = None) -> None:
     if not guilds:
         if spec == "~":
+            print("syncing tree")
             synced = await ctx.bot.tree.sync(guild=ctx.guild)
         elif spec == "*":
+            print("copying global to guild")
             ctx.bot.tree.copy_global_to(guild=ctx.guild)
             synced = await ctx.bot.tree.sync(guild=ctx.guild)
         elif spec == "^":
+            print("clearing and resyncing")
             ctx.bot.tree.clear_commands(guild=ctx.guild)
             await ctx.bot.tree.sync(guild=ctx.guild)
             synced = []
         elif spec == "%":
+            print("clearing")
             ctx.bot.tree.clear_commands()
         else:
             synced = await ctx.bot.tree.sync()
 
         await ctx.send(
-            f"""synced {len(synced)} commands
-                {'globally' if spec is None else 'to the current guild'}.""")
+            f"synced {len(synced)} commands "
+            f"{'globally' if spec is None else 'to the current guild'}."
+        )
         return
 
     ret = 0
