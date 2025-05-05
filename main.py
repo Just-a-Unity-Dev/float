@@ -53,7 +53,11 @@ class HelpCommand(commands.HelpCommand):
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = commands.Bot(command_prefix=".", intents=intents, help_command=HelpCommand())
+client = commands.Bot(
+    command_prefix=os.getenv("PREFIX"),
+    intents=intents,
+    help_command=HelpCommand()
+)
 
 
 @client.command(name="sync", brief="Sync commands.")
