@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from classes.roll import roll_with_text
 import discord
+import random
 
 
 class RollCog(
@@ -135,6 +136,15 @@ cheers!
         message = await ctx.reply(embed=embed, view=view)
 
         view.message = message
+
+    @commands.hybrid_command(
+            name="coinflip",
+            brief="flips a coin.",
+            description="flips a coin and coins a flip. yaeh!"
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    async def coinflip_command(self, ctx: commands.Bot):
+        await ctx.reply(f"{random.choice(['heads!', 'tails!'])}")
 
     @commands.command(
             name="roll",
