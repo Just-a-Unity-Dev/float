@@ -1,5 +1,6 @@
 from http.client import HTTPException
 from typing import Optional
+import d20
 from discord import app_commands
 from discord.ext import commands
 from classes.roll import RollResult, roll_with_text
@@ -158,6 +159,75 @@ cheers!
             await interaction.reply(roll_with_text(string))
         except HTTPException as ex:
             print(ex)
+
+    @app_commands.command(
+            name="masscheck",
+            description="checks an expression several times."
+    )
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
+    async def masscheck_command_slash(
+        self,
+        interaction: discord.Interaction,
+        roll: str,
+        repeat: Optional[int] = 1,
+        ephemeral: Optional[bool] = False
+    ):
+        class CheckView(discord.ui.View):
+            def __init__(self, user_id: int):
+                super().__init__(timeout=180)
+                self.user_id = user_id
+
+            @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="❓")
+            async def view_roll(self, interaction: discord.Interaction, _button: discord.ui.Button):
+                await interaction.response.send_message(
+                    f"`{roll}` x`{repeat}` times",
+                    ephemeral=True
+                )
+
+            @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
+            async def destroy(self, interaction: discord.Interaction, _button: discord.ui.Button):
+                if (interaction.user.id == self.user_id or
+                        interaction.user.guild_permissions.manage_messages):
+                    await interaction.message.delete()
+                else:
+                    await interaction.response.send_message(
+                        "this isn't your roll, or you don't have access to manage messages.",
+                        ephemeral=True)
+
+        # First, check if `roll` is even plausible
+        check_result = roll_with_text(roll)
+        if not check_result.is_ok:
+            return await interaction.response.send_message(check_result.message)
+
+        example_result = d20.roll(roll.strip())
+        print(example_result.expr)
+
+        capped = False
+        if repeat > 100:
+            repeat = 100
+            capped = True
+
+        successes = 0
+        crit_successes = 0
+        crit_fails = 0
+
+        for _ in range(repeat):
+            roll_result = d20.roll(roll.strip())
+            if roll_result.total == 1:
+                successes += 1
+            if roll_result.crit == d20.CritType.CRIT:
+                crit_successes += 1
+            if roll_result.crit == d20.CritType.FAIL:
+                crit_fails += 1
+        crits = crit_successes + crit_fails
+
+        await interaction.response.send_message(f"""
+rolling `{roll}` x{repeat} times
+{successes}/{repeat} succeeded.
+{f"-# **crits**: {crit_successes} :white_check_mark: {crit_fails} :x:" if crits > 0 else ""}
+{'`repeat` capped to 100' if capped else ''}
+""".strip(), ephemeral=ephemeral, view=CheckView(interaction.user.id))
 
     @app_commands.command(
             name="roll",
