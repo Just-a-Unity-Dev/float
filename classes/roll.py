@@ -26,9 +26,15 @@ class RollResult():
         self.exception = exception
 
 
+ROLL_MAX = 100
+
+
 def roll_with_text(string: str, times: int = 1) -> RollResult:
     result = RollResult("You shouldn't be able to read this", 0, None)
     roll_string: list[str] = string.split(",")
+
+    if times > ROLL_MAX:
+        times = ROLL_MAX
 
     try:
         roll_results = []
@@ -42,7 +48,6 @@ def roll_with_text(string: str, times: int = 1) -> RollResult:
 
         result.message = "\n".join(roll_results)
         result.result_type = RollResultType.SUCCESS
-
     except d20.RollSyntaxError as ex:
         result.exception = ex
         result.message = \
@@ -63,5 +68,8 @@ def roll_with_text(string: str, times: int = 1) -> RollResult:
             "you roll the dice and it spills into the astral plane never to be seen again."
         result.result_type = RollResultType.FAIL_UNKNOWN
         result.exception = ex
+
+    if times == ROLL_MAX:
+        result.message += f"\n-#i capped your `repeat` to {ROLL_MAX} cause otherwise i'll die."
 
     return result
