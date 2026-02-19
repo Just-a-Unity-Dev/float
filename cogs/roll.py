@@ -2,7 +2,7 @@ from http.client import HTTPException
 from typing import Optional
 from discord import app_commands
 from discord.ext import commands
-from classes.roll import roll_with_text
+from classes.roll import RollResult, roll_with_text
 import discord
 import random
 
@@ -169,6 +169,7 @@ cheers!
         self,
         interaction: discord.Interaction,
         roll: str,
+        repeat: Optional[int] = 1,
         ephemeral: Optional[bool] = False
     ):
         """Roll a dice using regular dice notation."""
@@ -178,17 +179,18 @@ cheers!
                 self.user_id = user_id
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="❓")
-            async def view_roll(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.response.send_message(f"**`{roll}`**", ephemeral=True)
+            async def view_roll(self, interaction: discord.Interaction, _button: discord.ui.Button):
+                await interaction.response.send_message(
+                    f"`{roll}` x`{repeat}` times",
+                    ephemeral=True
+                )
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🎲")
-            async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.response.send_message(
-                    roll_with_text(roll),
-                    view=view, ephemeral=True)
+            async def reroll(self, interaction: discord.Interaction, _button: discord.ui.Button):
+                await self.roll_slash_proper(roll, interaction, repeat)
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
-            async def destroy(self, interaction: discord.Interaction, button: discord.ui.Button):
+            async def destroy(self, interaction: discord.Interaction, _button: discord.ui.Button):
                 if (interaction.user.id == self.user_id or
                         interaction.user.guild_permissions.manage_messages):
                     await interaction.message.delete()
@@ -197,15 +199,34 @@ cheers!
                         "this isn't your roll, or you don't have access to manage messages.",
                         ephemeral=True)
 
+        await self.roll_slash_proper(
+            roll,
+            interaction,
+            repeat,
+            ephemeral,
+            RollView(interaction.user.id)
+        )
+
+    async def roll_slash_proper(
+        self,
+        roll: str,
+        interaction: discord.Interaction,
+        repeat: int = 1,
+        ephemeral: bool = False,
+        view: Optional[discord.ui.View] = None
+    ):
         try:
-            view = RollView(interaction.user.id)
+            result: RollResult = roll_with_text(roll, repeat)
+            message = result.message
             await interaction.response.send_message(
-                roll_with_text(roll),
+                message,
                 view=view,
                 ephemeral=ephemeral
             )
-        except HTTPException:
-            interaction.response.send_message("you roll the dice and it spills into nowhere land.")
+        except Exception as e:
+            print(e)
+            await interaction.response.send_message(
+                "you roll the dice and it spills into nowhereland.")
 
 
 async def setup(client: commands.Bot) -> None:
