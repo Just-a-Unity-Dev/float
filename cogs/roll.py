@@ -223,10 +223,19 @@ cheers!
                 view=view,
                 ephemeral=ephemeral
             )
-        except Exception as e:
+        except discord.HTTPException as e:
             print(e)
             await interaction.response.send_message(
-                "you roll the dice and it spills into nowhereland.")
+                "so, i'm actually locked to 2000 characters. try rolling smaller dice this time.",
+                ephemeral=ephemeral
+            )
+        except Exception as e:
+            print(e)
+            print(type(e).__name__)
+            await interaction.response.send_message(
+                "you roll the dice and it spills into nowhereland.",
+                ephemeral=ephemeral
+            )
 
 
 async def setup(client: commands.Bot) -> None:
