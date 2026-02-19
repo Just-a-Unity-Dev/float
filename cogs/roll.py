@@ -1,4 +1,5 @@
 from http.client import HTTPException
+from typing import Optional
 from discord import app_commands
 from discord.ext import commands
 from classes.roll import roll_with_text
@@ -164,7 +165,12 @@ cheers!
     )
     @app_commands.allowed_installs(guilds=True, users=True)
     @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
-    async def roll_command_slash(self, interaction: discord.Interaction, string: str):
+    async def roll_command_slash(
+        self,
+        interaction: discord.Interaction,
+        roll: str,
+        ephemeral: Optional[bool] = False
+    ):
         """Roll a dice using regular dice notation."""
         class RollView(discord.ui.View):
             def __init__(self, user_id: int):
@@ -173,12 +179,12 @@ cheers!
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="❓")
             async def view_roll(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.response.send_message(f"**`{string}`**", ephemeral=True)
+                await interaction.response.send_message(f"**`{roll}`**", ephemeral=True)
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🎲")
             async def reroll(self, interaction: discord.Interaction, button: discord.ui.Button):
                 await interaction.response.send_message(
-                    roll_with_text(string),
+                    roll_with_text(roll),
                     view=view, ephemeral=True)
 
             @discord.ui.button(label='', style=discord.ButtonStyle.gray, emoji="🗑️")
@@ -193,7 +199,11 @@ cheers!
 
         try:
             view = RollView(interaction.user.id)
-            await interaction.response.send_message(roll_with_text(string), view=view)
+            await interaction.response.send_message(
+                roll_with_text(roll),
+                view=view,
+                ephemeral=ephemeral
+            )
         except HTTPException:
             interaction.response.send_message("you roll the dice and it spills into nowhere land.")
 
