@@ -156,7 +156,7 @@ cheers!
     async def roll_command_text(self, interaction: commands.Context, string: str):
         """Roll a dice using regular dice notation."""
         try:
-            await interaction.reply(roll_with_text(string))
+            await interaction.reply(roll_with_text(string).message)
         except HTTPException as ex:
             print(ex)
 
